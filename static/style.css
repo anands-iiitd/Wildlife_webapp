@@ -12,7 +12,6 @@ html, body {
 /* Variables CSS */
 :root {
     --header-height: 4.5rem;
-    /* Colors */
     --first-color: #000D23;
     --black-color: hsl(0,0%,0%);
     --white-color: hsl(0,0%,95%);
@@ -20,7 +19,6 @@ html, body {
     --text-color: hsl(0,0%,35%);
     --body-color: hsl(0,0%,87%);
 
-    /* Font and typography */
     --body-font: 'Assistant', sans-serif;
     --biggest-font-size: 2.5rem;
     --h1-font-size: 1.75rem;
@@ -30,18 +28,16 @@ html, body {
     --small-font-size: 0.813rem;
     --smaller-font-size: 0.75rem;
 
-    /* Font weight */
     --font-regular: 400;
     --font-medium: 500;
     --font-semi-bold: 600;
     --font-bold: 700;
 
-    /* z-index */
     --z-tooltip: 10;
     --z-fixed: 100;
 }
 
-body{
+body {
     background-color: #001527;
     justify-content: center;
     align-items: center;
@@ -53,8 +49,6 @@ body{
     overflow: hidden;
 }
 
-
-/* Header and Nav */
 .header {
     position: fixed;
     width: 100%;
@@ -144,7 +138,6 @@ body{
     margin-left: 1rem;
 }
 
-/* Home Section */
 .home {
     height: 100vh;
     display: flex;
@@ -179,36 +172,175 @@ body{
 .home__scroll-box {
     background-color: var(--first-color);
     color: var(--white-color);
-    width: 36px;
-    height: 36px;
-    display: grid;
-    place-items: center;
-    font-size: 1rem;
-    cursor: pointer;
-    overflow: hidden;
-    transition: background-color .4s;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    margin: 0 auto;
+    transition: 0.4s;
+    font-size: 1.5rem;
+}
+
+.home__scroll-name {
+    font-size: var(--small-font-size);
+    color: var(--text-color);
+    font-weight: var(--font-semi-bold);
+}
+
+.home__scroll:hover .home__scroll-box {
+    transform: translateY(0.25rem);
+}
+
+.about {
+    background-color: var(--body-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    border-radius: 10px;
+}
+
+.about__text {
+    font-size: var(--h2-font-size);
+    color: var(--title-color);
+    margin-bottom: 2rem;
+}
+
+.about__info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.about__info-box {
+    background-color: var(--first-color);
+    color: var(--white-color);
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    text-align: center;
+    flex-basis: calc(33.333% - 1rem);
+}
+
+.about__info-box h3 {
+    font-size: var(--h2-font-size);
+    margin-bottom: 0.5rem;
+}
+
+.about__info-box p {
+    font-size: var(--normal-font-size);
+}
+
+.contact {
+    background-color: var(--first-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    border-radius: 10px;
+}
+
+.contact__text {
+    font-size: var(--h2-font-size);
+    color: var(--white-color);
+    margin-bottom: 2rem;
+}
+
+.contact__form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.contact__form input,
+.contact__form textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 5px;
     border: none;
+    font-size: var(--normal-font-size);
+    font-family: var(--body-font);
+    box-sizing: border-box;
 }
 
-.home__scroll-box i {
-    animation: scroll-down 3s infinite;
+.contact__form button {
+    background-color: var(--white-color);
+    color: var(--first-color);
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 5px;
+    font-size: var(--h2-font-size);
+    font-family: var(--body-font);
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-/*Animate scroll icon*/
-@keyframes scroll-down{
-    0%{
-        transform: translateY(-1rem);
-        opacity: 0;
-    }
-    50%{
-        transform: translateY(0);
-        opacity: 1;
-    }
-    100%{
-        transform: translateY(.6rem);
-        opacity: 0;
-    }
+.contact__form button:hover {
+    background-color: var(--text-color);
 }
+
+.footer {
+    background-color: var(--first-color);
+    color: var(--white-color);
+    text-align: center;
+    padding: 2rem;
+}
+
+.footer p {
+    font-size: var(--normal-font-size);
+    margin: 0;
+}
+
+.mt-5 {
+    margin-top: 5rem;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    right: 0;
+    top: 60px;
+    width: 300px;
+    padding: 20px;
+    background-color: #000E22;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-left: 10px solid #000E22;
+    height: calc(100% - 60px);
+    overflow-y: auto;
+}
+
+.container-main {
+    margin-right: 320px; 
+    padding: 20px;
+    margin-top: 80px;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    justify-items: center;
+}
+
+.thumbnail {
+    width: auto;
+    height: 30px; 
+    object-fit: contain;
+    margin: 0;
+}
+
 
 /* Upload Section */
 .upload {
@@ -243,8 +375,10 @@ body{
     margin-bottom: 1rem;
 }
 
+
 .upload__file-button {
-    background-color: #599cb9;
+    width: 100%;
+    max-width: 200px;
     color: var(--white-color);
     padding: 0.5rem 1rem;
     border: none;
@@ -259,15 +393,15 @@ body{
 
 .upload__buttons {
     display: flex;
+    flex-direction: column; 
     justify-content: center;
     align-items: center;
     gap: 1rem;
-    flex-wrap: wrap;
     margin-top: 2rem;
 }
 
 .upload__button {
-    width: 200px;
+    width: 100%; 
     padding: 0.5rem 1rem;
     font-size: var(--normal-font-size);
     font-weight: var(--font-medium);
@@ -275,6 +409,8 @@ body{
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
+    text-align: center;
+    box-sizing: border-box; 
 }
 
 .upload__button#ub {
@@ -290,10 +426,12 @@ body{
 .upload__button#ud {
     background-color: #73b758;
     transition: var(--first-color) 0.3s;
+    text-decoration: none;
+    display: inline-block; 
 }
 
 .upload__button#ub:hover,
-.upload__button#up:hover{
+.upload__button#up:hover {
     background-color: #182a32; 
 }
 
@@ -301,17 +439,35 @@ body{
     background-color: #436834;
 }
 
-/* Footer */
-.footer {
-    background-color: #000d1e;
+.upload__file-label {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+}
+
+.img-small {
+    width: 50px;
+    height: auto;
+    margin: 5px; 
+}
+
+.portfolio-filter {
+    margin-bottom: 20px;
+}
+
+.portfolio-filter button {
+    margin-right: 10px;
+    background-color: var(--first-color);
     color: var(--white-color);
-    text-align: center;
-    padding: 2rem 0;
-    font-family: var(--body-font);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: var(--normal-font-size);
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.footer p {
-    margin: 0;
-    font-size: var(--small-font-size);
+.portfolio-filter button.active {
+    background-color: var(--body-color);
+    color: var(--title-color);
 }
-
