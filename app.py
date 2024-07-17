@@ -17,7 +17,7 @@ fs = gridfs.GridFS(db)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024  # 30MB limit
+app.config['MAX_CONTENT_LENGTH'] = 700 * 1024 * 1024  
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
