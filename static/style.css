@@ -471,3 +471,37 @@ body {
     background-color: var(--body-color);
     color: var(--title-color);
 }
+
+.category-block {
+    margin-bottom: 2rem;
+}
+
+.category-label {
+    font-size: var(--h3-font-size);
+    color: var(--white-color);
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.filtr-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    justify-items: center;
+}
+
+.grid-item {
+    width: 100%;
+    text-align: center;
+}
+
+.grid-item img {
+    width: 100%;
+    height: auto;
+}
