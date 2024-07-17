@@ -120,7 +120,7 @@
                 {% for image in images %}
                     <div class="col-md-3 col-sm-6 col-xs-6 filtr-item" data-category="{{ category }}">
                         <div class="portfolio-block">
-                            <img class="img-fluid" src="{{ url_for('display_image', id=image['file_id']) }}" alt="">
+                            <img class="img-fluid" src="{{ url_for('display_image', filename=category + '/' + image) }}" alt="">
                             <div class="caption">
                                 <h4>{{ category }}</h4>
                             </div>

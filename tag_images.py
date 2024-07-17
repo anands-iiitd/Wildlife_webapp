@@ -1,3 +1,100 @@
+import os
+import shutil
+import numpy as np
+from collections import Counter
+from sklearn import preprocessing
+from collections import OrderedDict
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import multilabel_confusion_matrix
+from sklearn.metrics import precision_recall_fscore_support as precision_recall
+import matplotlib.pyplot as plt
+from iptcinfo3 import IPTCInfo
+
+IMG_FORMATS = ['bmp', 'dng', 'jpeg', 'jpg', 'mpo', 'png', 'tif', 'tiff', 'webp']  # include image suffixes
+
+def create_dir(folder_path):
+  if not os.path.isdir(folder_path):
+    os.mkdir(folder_path)
+
+def change_tags(image_path, image_name, save_tagged_path, keyword, labels, key_with_conf, ext, bool_value): #image path: str ; keyword: list
+    source_name = os.path.normpath(os.path.dirname(image_path) + os.sep + os.pardir)
+    log_folder = os.path.join(source_name, 'logs_files')
+    if not os.path.isdir(log_folder):
+        os.mkdir(log_folder)
+
+    if len(labels) > 1:
+        file1 = open(os.path.join(log_folder, 'multiple_species.txt'), "a")
+        L = [os.path.join(image_path, image_name), '\n']
+        file1.writelines(L)
+        file1.close()
+
+    source = os.path.join(image_path, image_name) + ext
+    name = dest_dict[labels[0]]
+    image_update_name = image_name
+    if not os.path.isdir(os.path.join(save_tagged_path, name)):
+        os.mkdir(os.path.join(save_tagged_path, name))
+    c = 1
+    if os.path.exists(os.path.join(save_tagged_path, name, image_update_name) + ext):
+        in_while = True
+        while os.path.exists(os.path.join(save_tagged_path, name, image_update_name) + ext):
+            file1 = open(os.path.join(log_folder, 'repeated_names.txt'), "a")
+            L = [os.path.join(image_path, image_update_name), " ", name, '\n']
+            file1.writelines(L)
+            file1.close()
+            image_update_name = image_name + f'_{c}'
+            c = c + 1
+        in_while = False
+    shutil.move(source, os.path.join(save_tagged_path, name, image_update_name) + ext)
+    f1 = open(os.path.join(log_folder, 'processed_files.txt'), "a")
+    L = [os.path.join(image_path, image_name), '\n']
+    f1.writelines(L)
+    f1.close()
+    source = os.path.join(save_tagged_path, name, image_update_name) + ext
+    info = IPTCInfo(source)
+    info['keywords'] = keyword
+    info['caption/abstract'] = ' '.join(map(str, key_with_conf))
+
+    for i in range(len(labels)):
+        name = dest_dict[labels[i]]
+        c = 1
+        in_while = False
+        if not os.path.isdir(os.path.join(save_tagged_path, name)):
+            os.mkdir(os.path.join(save_tagged_path, name))
+
+        if os.path.exists(os.path.join(save_tagged_path, name, image_update_name) + ext) and i != 0:
+            in_while = True
+            while os.path.exists(os.path.join(save_tagged_path, name, image_update_name) + ext):
+                file1 = open(os.path.join(log_folder, 'repeated_names.txt'), "a")
+                L = [os.path.join(image_path, image_update_name), " ", name, '\n']
+                file1.writelines(L)
+                file1.close()
+                image_update_name = image_name + f'_{c}'
+                c = c + 1
+            info.save_as(os.path.join(save_tagged_path, name, image_update_name) + ext, options='overwrite')
+        else:
+            if i == 0:
+                info.save()
+            else:
+                info.save_as(os.path.join(save_tagged_path, name, image_update_name) + ext, options='overwrite')
+
+def unique_labels(list_pred):
+    d = {}
+    for item in reversed(list_pred):
+        class_num = item.split(' ')[0]
+        conf = item.split(' ')[-1].split('\n')[0]
+        if (int(class_num) not in d) and (float(conf) > 0.3): #conf threshold 
+            d.update({int(class_num): conf})
+    return d
+
+# Hardcoded parameters
+images_path = './image_directory/merged_folder'  # Set your image path here
+pred_path = 'runs/detect/yolo_test_24_08_site0001/labels'  # Set your prediction path here
+tagged_path = './image_directory/tagged_images'  # Set your tagged image path here
+new_dataset = 'No'  # Indicate if this is a new dataset or tagging already done once
+
+create_dir(tagged_path)
+
 classes = ['mani_cras-Manis crassicaudata', 'maca_munz-Macaca munzala', 'maca_radi-Macaca radiata', 'athe_macr', 'vulp_beng', 'lept_java-Leptoptilos javanicus',
  'trac_pile-Trachypithecus pileatus', 'hyst_brac-Hystrix brachyura', 'nilg_hylo-Nilgiritragus hylocrius', 'prio_vive-Prionailurus viverrinus',
   'neof_nebu-Neofelis nebulosa', 'melu_ursi', 'vehi_vehi', 'hyae_hyae-Hyaena hyaena', 'maca_mula-Macaca mulatta', 'fran_pond-Francolinus pondicerianus',
@@ -51,15 +148,7 @@ mapping = {'anat_elli': 'elli', 'anti_cerv': 'cerv', 'arct_coll': 'coll', 'athe_
            'sus__scro-Sus scrofa': 'scro', 'tetr_quad-Tetracerus quadricornis': 'quad', 'trac_john-Trachypithecus johnii': 'trac_john', 'trac_pile-Trachypithecus pileatus': 'pile',
            'tree_shre': 'tree', 'ursu_thib-Ursus thibetanus': 'thib', 'vara_beng-Varanus bengalensis': 'varabeng', 'vara_salv-Varanus salvator': 'salv', 'vehi_vehi': 'vehi',
            'vive_indi-Viverricula indica': 'viveindi', 'vive_zibe-Viverra zibetha': 'zibe', 'vulp_beng': 'vulpbeng', 'vulp_vulp': 'vulp'}
-import os
-import io
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-from collections import OrderedDict
-from sklearn import preprocessing
-from iptcinfo3 import IPTCInfo
-import gridfs
-import sys
+
 le = preprocessing.LabelEncoder()
 le.fit(classes)
 word_to_int = le.transform(classes)
@@ -76,107 +165,89 @@ for i in range(len(keys)):
 
 sorted_res_int_to_word = OrderedDict(sorted(res_int_to_word.items()))
 
+all_images = os.listdir(images_path)
+all_pred_labels = os.listdir(pred_path)
+
+print("Total images were {}, YOLO detected labels for {} images".format(len(all_images), len(all_pred_labels)))
+
+image_name_dict = {}
+image_names = []
+other_extension_files = 0
+for file_name in all_images:
+    if file_name.split('.')[-1].lower() in IMG_FORMATS:
+        image_name = file_name.split('.')[0]
+        image_name_dict[image_name] = [file_name, '.' + file_name.split('.')[1]]  # save original file name and extension also
+        image_names.append(image_name)
+    else:
+        other_extension_files += 1
+
+print("Other Extension Files: ", other_extension_files)
+
+image_preds = {}
+cnt = 0
+flag = False
 prefix = ['a', 'b', 'c']
 
-IMG_FORMATS = ['bmp', 'dng', 'jpeg', 'jpg', 'mpo', 'png', 'tif', 'tiff', 'webp']  # include image suffixes
 
-def unique_labels(list_pred):
-    d = {}
-    for item in reversed(list_pred):
-        parts = item.split(' ')
-        if len(parts) < 2:  # Ensure there are at least two parts to avoid index errors
-            continue
-        class_num = parts[0]
-        conf = parts[-1].split('\n')[0]
-        if class_num.isdigit() and conf.replace('.', '', 1).isdigit() and (int(class_num) not in d) and (float(conf) > 0.3):  # conf threshold 
-            d.update({int(class_num): conf})
-    return d
 
-def categorize_images(mongodb_uri, output_file_ids, label_texts):
-    client = MongoClient(mongodb_uri)
-    db = client['ImageDatabase']
-    fs = gridfs.GridFS(db)
-    collection = db['CategorizedImages']
 
-    output_file_ids = output_file_ids.split(',')
-    label_texts = eval(label_texts)
 
-    for output_file_id in output_file_ids:
-        image_doc = fs.get(ObjectId(output_file_id))
-        original_id = image_doc.metadata['original_id']
-        original_doc = fs.get(ObjectId(original_id))
-        txt_content = label_texts.get(original_id, '').split('\n')  # Use .get() to avoid KeyError
-
-        labels = []
-        try:
-            pred_dict = unique_labels(txt_content)
-            keyword = []
-            key_with_conf = []
-            if len(txt_content) == 0:
-                keyword = ['blan']
-                labels.append('blan_blan')
-                key_with_conf = ['blan_conf_unknown']
-            elif len(pred_dict) == 0:
-                keyword.append('blan')
-                labels.append('blan_blan')
-                key_with_conf.append('blan_conf_unknown')
-            elif len(pred_dict.keys()) <= 3:
-                index = 0
-                for label, conf in pred_dict.items():
-                    labels.append(f'{sorted_res_int_to_word[label]}')
-                    keyword.append(f'{prefix[index]}_{mapping[sorted_res_int_to_word[label]]}')
-                    key_with_conf.append(f'{prefix[index]}_{mapping[sorted_res_int_to_word[label]]}_{conf}')
-                    index += 1
-            elif len(pred_dict.keys()) > 3:
-                count = 1
-                index = 0
-                for label, conf in pred_dict.items():
-                    labels.append(f'{sorted_res_int_to_word[label]}')
-                    keyword.append(f'{prefix[index]}_{mapping[sorted_res_int_to_word[label]]}')
-                    key_with_conf.append(f'{prefix[index]}_{mapping[sorted_res_int_to_word[label]]}_{conf}')
-                    index += 1
-                    count += 1
-                    if count > 3:
-                        break
-            if len(keyword) == 0:
-                keyword.append('blan')
-                labels.append('blan_blan')
-                key_with_conf.append('blan_conf_unknown')
-
-            for label in labels:  # Insert document for each label
-                change_tags(original_doc, original_id, '/tmp', keyword, [label], key_with_conf, '.jpg', fs, collection)
-        except Exception as e:
-            print(f'Generated label not found for this image {original_id}. Error: {str(e)}')
+for image in image_names:
+    ext = image_name_dict[image][1]
+    
+    
+    name = str(os.path.join(images_path, image) + '\n')
+    
+    labels = []
+    try:
+        text_file = image + '.txt'
+        file = open(os.path.join(pred_path, text_file), 'r')
+        all_preds = file.readlines()
+        pred_dict = unique_labels(all_preds)
+        keyword = []
+        key_with_conf = []
+        if len(all_preds) == 0:  # for empty label.txt file, put the image in blank folder
             keyword = ['blan']
             labels.append('blan_blan')
             key_with_conf = ['blan_conf_unknown']
-            change_tags(original_doc, original_id, '/tmp', keyword, labels, key_with_conf, '.jpg', fs, collection)
+        elif len(pred_dict) == 0:  # if predictions less than confidence score put them in unidentified
+            keyword.append('blan')
+            labels.append('blan_blan')
+            key_with_conf.append('blan_conf_unknown')
+        elif len(pred_dict.keys()) <= 3:
+            index = 0
+            for label, conf in pred_dict.items():
+                labels.append(f'{sorted_res_int_to_word[label]}')
+                keyword.append(f'{prefix[index]}_{mapping[sorted_res_int_to_word[label]]}')
+                key_with_conf.append(f'{prefix[index]}_{mapping[sorted_res_int_to_word[label]]}_{conf}')
+                index += 1
+        elif len(pred_dict.keys()) > 3:
+            count = 1
+            index = 0
+            for label, conf in pred_dict.items():
+                labels.append(f'{sorted_res_int_to_word[label]}')
+                keyword.append(f'{prefix[index]}_{mapping[sorted_res_int_to_word[label]]}')
+                key_with_conf.append(f'{prefix[index]}_{mapping[sorted_res_int_to_word[label]]}_{conf}')
+                index += 1
+                count += 1
+                if count > 3:
+                    break
+        else:
+            print('#####################################')
+            print('No condition met')
+            print('#####################################')
+        if len(keyword) == 0:
+            keyword.append('blan')
+            labels.append('blan_blan')
+            key_with_conf.append('blan_conf_unknown')
+        change_tags(images_path, image, tagged_path, keyword, labels, key_with_conf, ext, new_dataset)
+    except:
+        print('Generated label not found for this image {}'.format(image))
+        cnt = cnt + 1
+        keyword = ['blan']
+        labels.append('blan_blan')
+        key_with_conf = ['blan_conf_unknown']
+        change_tags(images_path, image, tagged_path, keyword, labels, key_with_conf, ext, new_dataset)
+ 
 
-def change_tags(image_doc, image_id, save_tagged_path, keyword, labels, key_with_conf, ext, fs, collection):
-    source = f"processed_{image_id}.jpg"
-    name = dest_dict[labels[0]]
 
-    doc = {
-        "file_id": image_doc._id,  # Accessing _id directly
-        "category": name,
-        "keywords": keyword,
-        "labels": labels,
-        "key_with_conf": key_with_conf
-    }
-    collection.insert_one(doc)
-
-    # Update IPTC info
-    info = IPTCInfo(io.BytesIO(image_doc.read()))
-    info['keywords'] = keyword
-    info['caption/abstract'] = ' '.join(map(str, key_with_conf))
-
-    if fs.exists({"filename": source}):
-        fs.delete(fs.get_last_version(filename=source)._id)
-    fs.put(io.BytesIO(image_doc.read()), filename=source, metadata={"keywords": keyword, "caption": ' '.join(map(str, key_with_conf))})
-
-if __name__ == "__main__":
-    mongodb_uri = sys.argv[1]
-    output_file_ids = sys.argv[2]
-    label_texts = sys.argv[3]
-
-    categorize_images(mongodb_uri, output_file_ids, label_texts)

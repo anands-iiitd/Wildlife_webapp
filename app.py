@@ -1,124 +1,104 @@
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash
 import os
-import io
+import shutil
 import zipfile
-from flask import Flask, request, render_template, jsonify, send_file, abort, redirect, url_for
 from werkzeug.utils import secure_filename
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-import gridfs
-from detect import run
-import torch
-
-# MongoDB connection string
-uri = "mongodb+srv://kushiluv:kushiluv25@cluster0.pety1ki.mongodb.net/"
-client = MongoClient(uri)
-db = client['ImageDatabase']
-fs = gridfs.GridFS(db)
+import subprocess
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['MAX_CONTENT_LENGTH'] = 700 * 1024 * 1024  
+app.secret_key = 'supersecretkey'
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+# Configuration
+UPLOAD_FOLDER = './image_directory/merged_folder'
+TAGGED_FOLDER = './image_directory/tagged_images'
+DETECT_FOLDER = './runs/detect'
+ZIP_FOLDER = './zips'
+ALLOWED_EXTENSIONS = {'bmp', 'dng', 'jpeg', 'jpg', 'mpo', 'png', 'tif', 'tiff', 'webp'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['TAGGED_FOLDER'] = TAGGED_FOLDER
+app.config['DETECT_FOLDER'] = DETECT_FOLDER
+app.config['ZIP_FOLDER'] = ZIP_FOLDER
+
+# Ensure directories exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(TAGGED_FOLDER, exist_ok=True)
+os.makedirs(DETECT_FOLDER, exist_ok=True)
+os.makedirs(ZIP_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/', methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':
-        # Clear old data
-        db.fs.chunks.drop()
-        db.fs.files.drop()
-        db.CategorizedImages.drop()
-        
-        files = request.files.getlist('file')
-        file_ids = []
-        for file in files:
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_id = fs.put(file.read(), filename=filename, content_type=file.content_type)
-                file_ids.append(str(file_id))
-        
-        # Create a single string from the list of file IDs
-        file_ids_str = ','.join(file_ids)
-        
-        # Print file IDs for debugging
-        print("File IDs:", file_ids_str)
-        
-        # Call the run function from detect.py
-        run(
-            weights='runs/train/wii_28_072/weights/best.pt',
-            data='data/wii_aite_2022_testing.yaml',
-            imgsz=(640, 640),
-            conf_thres=0.001,
-            iou_thres=0.6,
-            max_det=1000,
-            device='0' if torch.cuda.is_available() else 'cpu',
-            view_img=False,
-            save_txt=True,
-            save_conf=True,
-            save_crop=False,
-            nosave=False,
-            classes=None,
-            agnostic_nms=False,
-            augment=False,
-            visualize=False,
-            project='runs/detect',
-            name='yolo_test_24_08_site0001',
-            exist_ok=False,
-            line_thickness=3,
-            hide_labels=False,
-            hide_conf=False,
-            half=False,
-            dnn=False,
-            mongodb_uri=uri,
-            file_ids=file_ids_str
-        )
-        
-        return redirect(url_for('results'))
+def clear_directory(directory):
+    if os.path.exists(directory):
+        shutil.rmtree(directory)
+    os.makedirs(directory, exist_ok=True)
 
-    categories = db['CategorizedImages'].distinct('category')
+def zip_tagged_images():
+    zip_filename = os.path.join(app.config['ZIP_FOLDER'], 'tagged_images.zip')
+    with zipfile.ZipFile(zip_filename, 'w') as zipf:
+        for root, dirs, files in os.walk(app.config['TAGGED_FOLDER']):
+            for file in files:
+                file_path = os.path.join(root, file)
+                arcname = os.path.relpath(file_path, start=app.config['TAGGED_FOLDER'])
+                zipf.write(file_path, arcname)
+    return zip_filename
+
+@app.route('/')
+def index():
+    # Scan the tagged images folder to get categories
+    categories = [f.name for f in os.scandir(TAGGED_FOLDER) if f.is_dir()]
     categorized_images = {}
     for category in categories:
-        images = db['CategorizedImages'].find({'category': category})
+        category_path = os.path.join(TAGGED_FOLDER, category)
+        images = [f for f in os.listdir(category_path) if allowed_file(f)]
         categorized_images[category] = images
     return render_template('results.html', categories=categories, categorized_images=categorized_images)
 
-@app.route('/results', methods=['GET'])
-def results():
-    categories = db['CategorizedImages'].distinct('category')
-    categorized_images = {}
-    for category in categories:
-        images = db['CategorizedImages'].find({'category': category})
-        categorized_images[category] = images
-    return render_template('results.html', categories=categories, categorized_images=categorized_images)
-
-@app.route('/download', methods=['GET'])
-def download_all():
-    categories = db['CategorizedImages'].distinct('category')
-    zip_buffer = io.BytesIO()
-
-    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
-        for category in categories:
-            images = db['CategorizedImages'].find({'category': category})
-            for image in images:
-                file_id = image['file_id']
-                image_doc = fs.get(ObjectId(file_id))
-                image_name = os.path.join(category, image_doc.filename)
-                zf.writestr(image_name, image_doc.read())
+@app.route('/', methods=['POST'])
+def upload_files():
+    if 'file' not in request.files:
+        flash('No file part')
+        return redirect(request.url)
     
-    zip_buffer.seek(0)
+    files = request.files.getlist('file')
     
-    return send_file(zip_buffer, mimetype='application/zip', as_attachment=True, download_name='categorized_images.zip')
+    # Clear directories
+    clear_directory(app.config['UPLOAD_FOLDER'])
+    clear_directory(app.config['TAGGED_FOLDER'])
+    clear_directory(app.config['DETECT_FOLDER'])
+    
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            print(f"Saved file to {file_path}")
 
-@app.route('/image/<id>', methods=['GET'])
-def display_image(id):
-    try:
-        image_doc = fs.get(ObjectId(id))
-        return send_file(io.BytesIO(image_doc.read()), mimetype=image_doc.content_type)
-    except Exception as e:
-        abort(404, description=f"Image not found: {e}")
+    # Run detect.py
+    detect_process = subprocess.run(["python", "detect.py"], capture_output=True, text=True)
+    print(detect_process.stdout)
+    print(detect_process.stderr)
 
-if __name__ == '__main__':
+    # Run tag_images.py
+    tag_process = subprocess.run(["python", "tag_images.py"], capture_output=True, text=True)
+    print(tag_process.stdout)
+    print(tag_process.stderr)
+
+    return redirect(url_for('index'))
+
+@app.route('/download')
+def download_files():
+    zip_filepath = zip_tagged_images()
+    return send_from_directory(directory=app.config['ZIP_FOLDER'], path='tagged_images.zip', as_attachment=True)
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
+
+@app.route('/display_image/<path:filename>')
+def display_image(filename):
+    return send_from_directory(TAGGED_FOLDER, filename)
+
+if __name__ == "__main__":
     app.run(debug=True)
