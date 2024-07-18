@@ -49,7 +49,7 @@
                 <div class="image-grid">
                     {% for image in images %}
                         <div class="grid-item filtr-item">
-                            <img class="img-fluid img-small" src="{{ url_for('display_image', id=image['file_id']) }}" alt="">
+                            <img class="img-fluid img-small zoom-image" src="{{ url_for('display_image', id=image['file_id']) }}" alt="">
                         </div>
                     {% endfor %}
                 </div>
@@ -58,6 +58,10 @@
     </div>
 </div>
 
+<div id="zoomModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="zoomedImage">
+</div>
 
 <div class="sidebar">
     <form method="post" enctype="multipart/form-data" action="/">
@@ -67,7 +71,7 @@
         </div>
         <div class="upload__buttons">
             <button type="submit" class="upload__button" id="ub">Upload</button>
-            <button class="upload__button" id="up">Process</button>
+            <!--<button class="upload__button" id="up">Process</button>-->
             <a href="/download" class="upload__button" id="ud">Download</a>
         </div>
     </form>
@@ -79,21 +83,32 @@
 
 <script>
     $(document).ready(function () {
-    $('.portfolio-filter button').on('click', function () {
-        var category = $(this).attr('data-filter');
+        $('.portfolio-filter button').on('click', function () {
+            var category = $(this).attr('data-filter');
 
-        $('.portfolio-filter button').removeClass('active');
-        $(this).addClass('active');
+            $('.portfolio-filter button').removeClass('active');
+            $(this).addClass('active');
 
-        if (category == 'all') {
-            $('.category-block').show();
-        } else {
-            $('.category-block').hide();
-            $('.category-block[data-category="' + category + '"]').show();
-        }
+            if (category == 'all') {
+                $('.category-block').show();
+            } else {
+                $('.category-block').hide();
+                $('.category-block[data-category="' + category + '"]').show();
+            }
+        });
+
+        var modal = document.getElementById('zoomModal');
+        var modalImg = document.getElementById('zoomedImage');
+
+        $('.zoom-image').on('click', function() {
+            modal.style.display = "block";
+            modalImg.src = this.src;
+        });
+
+        $('.close, .modal').on('click', function() {
+            modal.style.display = "none";
+        });
     });
-});
-
 </script>
 
 </body>
