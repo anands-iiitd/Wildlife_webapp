@@ -4,6 +4,7 @@ import shutil
 import zipfile
 from werkzeug.utils import secure_filename
 import subprocess
+import pickle
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -53,7 +54,9 @@ def index():
         category_path = os.path.join(TAGGED_FOLDER, category)
         images = [f for f in os.listdir(category_path) if allowed_file(f)]
         categorized_images[category] = images
-    return render_template('results.html', categories=categories, categorized_images=categorized_images)
+    with open('species_mapping.pkl', 'rb') as f:
+        species_mapping = pickle.load(f)
+    return render_template('index.html', categories=categories, categorized_images=categorized_images, species_mapping=species_mapping)
 
 @app.route('/', methods=['POST'])
 def upload_files():

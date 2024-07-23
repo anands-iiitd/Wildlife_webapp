@@ -1,2 +1,5 @@
-
+image_directory/*
+zips/*
 runs/train/wii_28_072/weights/best.pt
+wii_webapp/*
+.idea/

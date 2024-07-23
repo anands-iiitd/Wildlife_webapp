@@ -1,0 +1,67 @@
+<!-- Tabs navs -->
+<div class="dropdown" style="margin-left:3.5%">
+  <button
+    class="btn btn-primary dropdown-toggle"
+    type="button"
+    id="dropdownMenuButton"
+    data-mdb-dropdown-init
+    data-mdb-ripple-init
+    aria-expanded="false"
+  >
+    <i class="fa fa-filter" aria-hidden="true"></i> Category Filter
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <li><a class="dropdown-item active" type="button" data-filter="all">ALL</a></li>
+    <li><hr class="dropdown-divider"  /></li>
+    {% for category, images in categorized_images.items() %}
+      <li>
+        <a class="dropdown-item" type="button" data-filter="{{category}}">{{ species_mapping.get(category, category.capitalize()) }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+  <a href="/download" class="btn btn-success float-right" id="downloadButton" style="margin-right:3.5%">Download ZIP</a>
+</div>
+<!-- Tabs navs -->
+<br />
+
+  <!-- Gallery -->
+  <div class="row" style="width:95%; margin-left:2.5%">
+    {% for category, images in categorized_images.items() %}
+      {% for image in images %}
+        <div class="col-lg-4 col-md-12 mb-4 mb-lg-0 filter-item" style="align-content:center" data-category="{{ category }}">
+          <img
+            src="{{ url_for('display_image', filename=category + '/' + image) }}"
+            class="w-100 shadow-1-strong rounded mb-4"
+            alt="Boat on Calm Water"
+            role="button"
+            data-mdb-ripple-init
+            data-mdb-modal-init
+            data-mdb-target="#exampleModal"
+            data-mdb-src="{{ url_for('display_image', filename=category + '/' + image) }}"
+            data-mdb-category="{{category}}"
+          />
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+  <!-- Gallery -->
+
+  <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="btn-close" data-mdb-ripple-init data-mdb-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <img class="expanded_img" src="" width="100%">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-mdb-ripple-init data-mdb-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  <!-- Modal -->

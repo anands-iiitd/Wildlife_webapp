@@ -1,0 +1,31 @@
+<div id="upload_files" style="width:50%; margin-left:25%">
+  <div class="card">
+    <img src="static/banner.png" class="card-img-top" alt="Fissure in Sandstone"/>
+    <div class="card-body">
+      <h5 class="card-title">CaTRAT: AI tool for species segregation</h5>
+      <p class="card-text">
+        CaTRAT is an Artificial Intelligence-based species segregation tool that leverages a deep learning-based object detector. Specifically, we train the YOLO-v5 object detector using approximately 1.27 million camera trap images acquired from all over India to detect the presence of an object and to classify the detected object into one of the 98 known species found in Indian landscapes. To semi-automate this process MegaDetector was used to automatically find objects in the images. Experts then reviewed these detected objects and provided the correct species labels. <br />
+      <center>Try it yourself!!! < Instructions on uploading images ></center>
+      </p>
+      <form id="upload_form" method="post" enctype="multipart/form-data" action="/">
+        <div class="input-group">
+          <input type="file" class="form-control" id="fileUpload" name="file" aria-describedby="inputGroupFileAddon04" aria-label="Upload" accept="image/png, image/jpeg" multiple="multiple" />
+          <button class="btn btn-outline-secondary" type="submit" id="uploadButton" data-mdb-ripple-init>
+            <span id="spinner_progress" class="spinner-border spinner-border-sm" role="status" hidden="true"></span>
+            Upload
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  upload_form = document.getElementById('upload_form');
+  upload_form.addEventListener('submit', (e) => {
+    spinner_progress = document.getElementById('spinner_progress')
+    spinner_progress.hidden = false
+    upload_button = document.getElementById('uploadButton')
+    upload_button.innerHTML = upload_button.innerHTML.replace('Upload', 'Uploading')
+  })
+</script>

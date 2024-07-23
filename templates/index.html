@@ -2,87 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="description" content="Wildlife Institute of India">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="Images/wii.png" type="image/x-icon">
-    <!-- Remixicons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.4.0/remixicon.css" crossorigin="">
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
-    
-    <title>Wildlife Institute of India</title>
+    <title>CaTRAT</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.3.2/mdb.min.css" rel="stylesheet" />
 </head>
 <body>
 
-    <header class="header" id="header">
-        <nav class="nav container">
-            <a href="#" class="nav__logo">
-                <img src="Images/wiiw.png" alt="Logo" class="nav__logo-image">
-                <span class="nav__logo-name">CaTRAT</span>
-            </a>
+  <!-- Navbar -->
+  {% include 'navigation_bar.html' %}
+  <!-- Navbar -->
 
-            <div class="nav__menu" id="nav-menu">
+  <!-- Upload Files Bar -->
+  {% include 'upload_files.html' %}
+  <!-- Upload Files Bar -->
 
-                <ul class="nav__list">
-                    <li class="nav__item">
-                        <a href="#home" class="nav__link">HOME</a>
-                    </li>
-                    <li class="nav__item">
-                        <a href="#about" class="nav__link">ABOUT</a>
-                    </li>
-                    <li class="nav__item">
-                        <a href="#contact" class="nav__link">CONTACT</a>
-                    </li>
-                    <li class="nav__item">
-                        <img src="Images/IIITD.png" alt="Logo" class="nav__link-image">
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </header>
-
-    <main class="main">
-        <!-- HOME Section -->
-        <section class="home section" id="home">
-            <div class="home__container container grid">
-                <div class="home__content">
-                    <h1>Welcome to CaTRAT</h1>
-                    <p>Let's get started</p>
-                    <a href="#upload" class="home__scroll">
-                        <div class="home__scroll-box">
-                            <i class="ri-arrow-down-s-line"></i>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- UPLOAD Section -->
-        <section class="upload section" id="upload">
-            <!--<div class="upload__container container grid">
-                <div class="upload__content">
-
-                    <div class="upload__header">
-                        <h2>Upload Images</h2>
-                        <input type="file" id="fileUpload" accept="image/*" style="display: none;">
-                        <label for="fileUpload" class="upload__file-button">Choose Files</label>
-                    </div>
-
-                    <div class="upload__buttons">
-                        <button class="upload__button" id="ub">Upload</button>
-                        <button class="upload__button" id="up">Process</button>
-                        <button class="upload__button" id="ud">Download</button>
-                    </div>
-
-                </div>
-            </div>-->
-        </section>
-    </main>
+  <!-- Gallery -->
+  {% if categorized_images.items()|length > 0 %}
+    {% include 'gallery.html' %}
+  {% endif %}
 
 
-    <script src="script.js"></script>
+<script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.3.2/mdb.umd.min.js"
+></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  $(document).ready(function () {
+            $('.dropdown-item').on('click', function () {
+                var category = $(this).attr('data-filter');
+                $('.dropdown-item').removeClass('active');
+                $(this).addClass('active');
+                if (category == 'all') {
+                    $('.filter-item').show();
+                } else {
+                    $('.filter-item').hide();
+                    $('.filter-item[data-category="' + category + '"]').show();
+                }
+            });
+        });
 
+  exampleModal = document.getElementById('exampleModal');
+  exampleModal.addEventListener('show.mdb.modal', (e) => {
+    // Button that triggered the modal
+    button = e.relatedTarget;
+    // Extract info from data-mdb-* attributes
+    expanded_img_path = button.getAttribute('data-mdb-src');
+    expanded_img_category = button.getAttribute('data-mdb-category');
+    // If necessary, you could initiate an AJAX request here
+    // and then do the updating in a callback.
+    //
+    // Update the modal's content.
+    expanded_img = exampleModal.querySelector('.expanded_img');
+    modal_title = exampleModal.querySelector('.modal-title');
+
+    expanded_img.src = `${expanded_img_path}`;
+    modal_title.textContent = `Species Category: ${expanded_img_category.toUpperCase()}`;
+  })
+</script>
 </body>
 </html>
