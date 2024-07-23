@@ -3,3 +3,5 @@ zips/*
 runs/train/wii_28_072/weights/best.pt
 wii_webapp/*
 .idea/
+logs_files/
+runs/detect/

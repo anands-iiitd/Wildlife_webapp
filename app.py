@@ -83,7 +83,7 @@ def upload_files():
     clear_directory(app.config['TAGGED_FOLDER'])
     clear_directory(app.config['UPLOAD_FOLDER'])
     clear_directory(app.config['DETECT_FOLDER'])
-    batch_size = min(10, n_files // 3)
+    batch_size = min(10, np.ceil(n_files // 3))
     for i, file in enumerate(files):
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
@@ -143,4 +143,4 @@ def display_image(filename):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
