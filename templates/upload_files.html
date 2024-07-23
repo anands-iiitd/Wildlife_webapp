@@ -16,6 +16,9 @@
           </button>
         </div>
       </form>
+      <div id="task_progress" class="progress" style="height: 20px;" hidden>
+        <div id="progress_bar" class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+      </div>
     </div>
   </div>
 </div>
@@ -27,5 +30,22 @@
     spinner_progress.hidden = false
     upload_button = document.getElementById('uploadButton')
     upload_button.innerHTML = upload_button.innerHTML.replace('Upload', 'Uploading')
+    function worker() {
+        $.get('get_progress/', function(progress) {
+            if (parseInt(progress) < 100) {
+                progress_bar = document.getElementById('progress_bar')
+                progress_bar.style.width = progress.concat('%')
+                progress_bar.innerText = progress.concat('%')
+                task_progress = document.getElementById('task_progress')
+                task_progress.hidden = false
+                setTimeout(worker, 1000)
+            } else {
+                progress_bar = document.getElementById('progress_bar')
+                progress_bar.style.width = progress.concat('%')
+                progress_bar.innerText = progress.concat('%')
+            }
+        })
+    }
+    worker()
   })
 </script>
