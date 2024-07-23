@@ -64,6 +64,8 @@ def index():
     with open('species_mapping.pkl', 'rb') as f:
         species_mapping = pickle.load(f)
     species_mapping = {k.strip(): species_mapping[k] for k in species_mapping.keys()}
+    species_mapping['blan_blan'] = 'Other'
+    species_mapping['vehi_vehi'] = 'Vehicle'
     return render_template('index.html', categories=categories, categorized_images=categorized_images, species_mapping=species_mapping)
 
 
