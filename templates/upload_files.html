@@ -29,7 +29,8 @@
     spinner_progress = document.getElementById('spinner_progress')
     spinner_progress.hidden = false
     upload_button = document.getElementById('uploadButton')
-    upload_button.innerHTML = upload_button.innerHTML.replace('Upload', 'Uploading')
+    upload_button.disabled = true
+    upload_button.innerHTML = upload_button.innerHTML.replace('Upload', '')
     function worker() {
         $.get('get_progress/', function(progress) {
             if (parseInt(progress) < 100) {
@@ -38,7 +39,7 @@
                 progress_bar.innerText = progress.concat('%')
                 task_progress = document.getElementById('task_progress')
                 task_progress.hidden = false
-                setTimeout(worker, 1000)
+                setTimeout(worker, 500)
             } else {
                 progress_bar = document.getElementById('progress_bar')
                 progress_bar.style.width = progress.concat('%')

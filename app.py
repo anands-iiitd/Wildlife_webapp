@@ -29,7 +29,6 @@ os.makedirs(DETECT_FOLDER, exist_ok=True)
 os.makedirs(ZIP_FOLDER, exist_ok=True)
 
 n_files = 0
-progress = 0
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -78,32 +77,16 @@ def upload_files():
     
     files = request.files.getlist('file')
     n_files = len(files)
-    progress = 0
     # Clear directories
     clear_directory(app.config['TAGGED_FOLDER'])
     clear_directory(app.config['UPLOAD_FOLDER'])
     clear_directory(app.config['DETECT_FOLDER'])
-    batch_size = min(10, np.ceil(n_files // 3))
     for i, file in enumerate(files):
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
             print(f"Saved file to {file_path}")
-        if i % batch_size == 0:
-            # Run detect.py
-            detect_process = subprocess.run(["python", "detect.py"], capture_output=True, text=True)
-            print(detect_process.stdout)
-            print(detect_process.stderr)
-
-            # Run tag_images.py
-            tag_process = subprocess.run(["python", "tag_images.py"], capture_output=True, text=True)
-            print(tag_process.stdout)
-            print(tag_process.stderr)
-
-            clear_directory(app.config['UPLOAD_FOLDER'])
-            clear_directory(app.config['DETECT_FOLDER'])
-            progress += batch_size
     # Run detect.py for remaining images
     detect_process = subprocess.run(["python", "detect.py"], capture_output=True, text=True)
     print(detect_process.stdout)
@@ -114,7 +97,6 @@ def upload_files():
     print(tag_process.stdout)
     print(tag_process.stderr)
     n_files = 0
-    progress = 0
 
     return redirect(url_for('index'))
 
@@ -123,7 +105,11 @@ def upload_files():
 def get_progress():
     global progress, n_files
 
-    return str(np.round(progress * 100 / n_files, 2)) if n_files > 0 else '0'
+    count = 0
+    for root_dir, cur_dir, files in os.walk(app.config['DETECT_FOLDER']):
+        count += len(files)
+    print("****************************")
+    return str(np.round(count * 50 / n_files, 2)) if n_files > 0 else '0'
 
 
 @app.route('/download')
