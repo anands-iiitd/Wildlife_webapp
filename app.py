@@ -92,6 +92,9 @@ def upload_files():
         flash('No file part')
         return redirect(request.url)
     
+    clear_directory(app.config['TAGGED_FOLDER'])
+    clear_directory(app.config['DETECT_FOLDER'])
+    
     files = request.files.getlist('file')
     n_files = len(os.listdir(app.config['UPLOAD_FOLDER']))
     for i, file in enumerate(files):
@@ -106,6 +109,8 @@ def upload_files():
 @app.route('/submit', methods=['POST'])
 def process_files():
     global n_files
+    clear_directory(app.config['TAGGED_FOLDER'])
+    clear_directory(app.config['DETECT_FOLDER'])
     # Run detect.py for remaining images
     detect_process = subprocess.run(["python", "detect.py"], capture_output=True, text=True)
     print(detect_process.stdout)
