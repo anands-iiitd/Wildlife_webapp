@@ -70,7 +70,8 @@ def index():
 
 @app.route('/', methods=['POST'])
 def upload_files():
-    global n_files, progress
+    global n_files
+    n_files = 0
     if 'file' not in request.files:
         flash('No file part')
         return redirect(request.url)
