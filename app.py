@@ -80,7 +80,9 @@ def catrat():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    images = [f for f in os.listdir('static/carousel')]
+    images = {i: os.path.join('static/carousel', image) for i, image in enumerate(images)}
+    return render_template('index.html', images=images)
 
 
 @app.route('/upload', methods=['POST'])

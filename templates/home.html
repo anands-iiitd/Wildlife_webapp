@@ -1,36 +1,39 @@
 <div id="carouselExampleIndicators" class="carousel slide carousel-fade" data-mdb-ride="carousel" data-mdb-carousel-init>
     <div class="carousel-indicators">
-      <button
-        type="button"
-        data-mdb-target="#carouselExampleIndicators"
-        data-mdb-slide-to="0"
-        class="active"
-        aria-current="true"
-        aria-label="Slide 1"
-      ></button>
-      <button
-        type="button"
-        data-mdb-target="#carouselExampleIndicators"
-        data-mdb-slide-to="1"
-        aria-label="Slide 2"
-      ></button>
-      <button
-        type="button"
-        data-mdb-target="#carouselExampleIndicators"
-        data-mdb-slide-to="2"
-        aria-label="Slide 3"
-      ></button>
+      {% for i, image in images.items() %}
+        {% if i == 0 %}
+          <button
+            type="button"
+            data-mdb-target="#carouselExampleIndicators"
+            data-mdb-slide-to="{{i}}"
+            aria-current="true"
+            aria-label="Slide {{i+1}}"
+            class="active"
+          ></button>
+        {% else %}
+          <button
+            type="button"
+            data-mdb-target="#carouselExampleIndicators"
+            data-mdb-slide-to="{{i}}"
+            aria-current="true"
+            aria-label="Slide {{i+1}}"
+          ></button>
+        {% endif %}
+      {% endfor %}
     </div>
-    <div class="carousel-inner">
-      <div class="carousel-item active">
-        <img src="https://ntca.gov.in/wp-content/uploads/2020/07/Tigers-Ranthambhore-49.jpg" class="" alt="Wild Landscape" style="height: 87vh; width: 100vw"/>
-      </div>
-      <div class="carousel-item">
-        <img src="https://ntca.gov.in/wp-content/uploads/2023/11/Tiger-2.jpg" class="" alt="Camera" style="height: 87vh; width: 100vw"/>
-      </div>
-      <div class="carousel-item">
-        <img src="https://ntca.gov.in/wp-content/uploads/2021/07/IMG_0714-copy.jpg" class="" alt="Exotic Fruits" style="height: 87vh; width: 100vw"/>
-      </div>
+    <div class="carousel-inner" style="height: 90vh">
+
+      {% for i, image in images.items() %}
+        {% if i == 0 %}
+          <div class="carousel-item active">
+            <img src="{{image}}" class="" alt="Wild Landscape" style="width: 100%"/>
+          </div>
+        {% else %}
+          <div class="carousel-item">
+            <img src="{{image}}" class="" alt="Wild Landscape" style="width: 100%"/>
+          </div>
+        {% endif %}
+      {% endfor %}
     </div>
     <button class="carousel-control-prev" type="button" data-mdb-target="#carouselExampleIndicators" data-mdb-slide="prev">
       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
