@@ -58,11 +58,12 @@ def reset_directories():
     clear_directory(app.config['UPLOAD_FOLDER'])
     clear_directory(app.config['DETECT_FOLDER'])
     n_files = 0
-    return redirect('/catarat')
+    return redirect('/catrat')
 
-@app.route('/catarat')
-def catarat():
+@app.route('/catrat')
+def catrat():
     global n_files
+    n_files = len(os.listdir(app.config['UPLOAD_FOLDER']))
     # Scan the tagged images folder to get categories
     categories = [f.name for f in os.scandir(TAGGED_FOLDER) if f.is_dir()]
     categorized_images = {}
@@ -75,7 +76,7 @@ def catarat():
     species_mapping = {k.strip(): species_mapping[k] for k in species_mapping.keys()}
     species_mapping['blan_blan'] = 'Other'
     species_mapping['vehi_vehi'] = 'Vehicle'
-    return render_template('catarat.html', categories=categories, categorized_images=categorized_images, species_mapping=species_mapping, n_files=n_files)
+    return render_template('catrat.html', categories=categories, categorized_images=categorized_images, species_mapping=species_mapping, n_files=n_files)
 
 @app.route('/')
 def index():
@@ -97,7 +98,7 @@ def upload_files():
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
             print(f"Saved file to {file_path}")
-    return redirect(url_for('catarat'))
+    return redirect(url_for('catrat'))
 
 
 @app.route('/submit', methods=['POST'])
@@ -114,7 +115,7 @@ def process_files():
     print(tag_process.stderr)
     n_files = 0
 
-    return redirect(url_for('catarat'))
+    return redirect(url_for('catrat'))
 
 
 @app.route('/get_progress/')
