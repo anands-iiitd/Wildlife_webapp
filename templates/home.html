@@ -21,16 +21,16 @@
         {% endif %}
       {% endfor %}
     </div>
-    <div class="carousel-inner" style="height: 90vh">
+    <div class="carousel-inner" style="height: 90vh; margin-left:10%">
 
       {% for i, image in images.items() %}
         {% if i == 0 %}
           <div class="carousel-item active">
-            <img src="{{image}}" class="" alt="Wild Landscape" style="width: 100%"/>
+            <img src="{{image}}" class="" alt="Wild Landscape" style="width: 80%"/>
           </div>
         {% else %}
           <div class="carousel-item">
-            <img src="{{image}}" class="" alt="Wild Landscape" style="width: 100%"/>
+            <img src="{{image}}" class="" alt="Wild Landscape" style="width: 80%"/>
           </div>
         {% endif %}
       {% endfor %}
@@ -46,9 +46,9 @@
   </div>
 <div class="card" style="width:75%; margin-left:12.5%">
   <div class="card-body">
-    <h5 class="card-title">CaTRAT: AI tool for species segregation</h5>
+    <h5 class="card-title">CaTRAT: An AI-based tool for species segregation</h5>
     <p class="card-text">
-      CaTRAT is an Artificial Intelligence-based species segregation tool that leverages a deep learning-based object detector. Specifically, we train the YOLO-v5 object detector using approximately 1.27 million camera trap images acquired from all over India to detect the presence of an object and to classify the detected object into one of the 98 known species found in Indian landscapes. To semi-automate this process MegaDetector was used to automatically find objects in the images. Experts then reviewed these detected objects and provided the correct species labels. <br />
+      CaTRAT is an Artificial Intelligence-based species segregation tool that leverages a deep learning-based object detector. Specifically, the YOLO-v5 object detector model is trained using over 1 million camera trap images acquired from all over India. The model can detect the presence of an animal, human or a vehicle and is capable of classifying the detected animal into one of 95 known species. The training data was curated with the help of MegaDetector for automated bounding boxes annotations and species labels manually annotated by experts. <br />
     </p>
     <a role="button" class="btn btn-danger btn-rounded" href="/try">Try it yourself</a>
   </div>
