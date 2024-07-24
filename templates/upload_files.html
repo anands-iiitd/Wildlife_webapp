@@ -1,24 +1,36 @@
-<div id="upload_files" style="width:50%; margin-left:25%">
-  <div class="card">
-    <img src="static/banner.png" class="card-img-top" alt="Fissure in Sandstone"/>
-    <div class="card-body">
-      <h5 class="card-title">CaTRAT: AI tool for species segregation</h5>
-      <p class="card-text">
-        CaTRAT is an Artificial Intelligence-based species segregation tool that leverages a deep learning-based object detector. Specifically, we train the YOLO-v5 object detector using approximately 1.27 million camera trap images acquired from all over India to detect the presence of an object and to classify the detected object into one of the 98 known species found in Indian landscapes. To semi-automate this process MegaDetector was used to automatically find objects in the images. Experts then reviewed these detected objects and provided the correct species labels. <br />
-      <center>Try it yourself!!! < Instructions on uploading images ></center>
+<div class="card" style="width:75%; margin-left:12.5%">
+  <img src="static/CaTRAT-logo.svg" style="width:75%; align-self: center" />
+  <div class="card-body">
+    <h5 class="card-title">CaTRAT: AI tool for species segregation</h5>
+    <p class="card-text">
+      CaTRAT is an Artificial Intelligence-based species segregation tool that leverages a deep learning-based object detector. Specifically, we train the YOLO-v5 object detector using approximately 1.27 million camera trap images acquired from all over India to detect the presence of an object and to classify the detected object into one of the 98 known species found in Indian landscapes. To semi-automate this process MegaDetector was used to automatically find objects in the images. Experts then reviewed these detected objects and provided the correct species labels. <br />
+      <p class="text-center text-danger fw-bold">
+          Try it yourself !
       </p>
-      <form id="upload_form" method="post" enctype="multipart/form-data" action="/">
-        <div class="input-group">
-          <input type="file" class="form-control" id="fileUpload" name="file" aria-describedby="inputGroupFileAddon04" aria-label="Upload" accept="image/png, image/jpeg" multiple="multiple" />
-          <button class="btn btn-outline-secondary" type="submit" id="uploadButton" data-mdb-ripple-init>
-            <span id="spinner_progress" class="spinner-border spinner-border-sm" role="status" hidden="true"></span>
-            Upload
-          </button>
-        </div>
-      </form>
-      <div id="task_progress" class="progress" style="height: 20px;" hidden>
-        <div id="progress_bar" class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+    </p>
+    <form id="upload_form" method="post" enctype="multipart/form-data" action="/upload">
+      <div class="input-group">
+        <input type="file" class="form-control" id="fileUpload" name="file" aria-describedby="inputGroupFileAddon04" aria-label="Upload" accept="image/png, image/jpeg" multiple="multiple" />
+        <button class="btn btn-outline-secondary" type="submit" id="uploadButton" data-mdb-ripple-init>
+          <span id="upload_spinner_progress" class="spinner-border spinner-border-sm" role="status" hidden="true"></span>
+          Upload
+        </button>
       </div>
+    </form>
+    <br />
+    {% if n_files > 0 %}
+    Files ready to be processed: {{n_files}}
+    {% endif %}
+    <form id="submit_form" method="post" enctype="multipart/form-data" action="/submit">
+      <div class="input-group">
+        <button class="btn btn-success col-4 offset-4" type="submit" id="submitButton" data-mdb-ripple-init>
+          <span id="submit_spinner_progress" class="spinner-border spinner-border-sm" role="status" hidden="true"></span>
+          Process
+        </button>
+      </div>
+    </form>
+    <div id="task_progress" class="progress" style="height: 20px;" hidden>
+      <div id="progress_bar" class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
     </div>
   </div>
 </div>
@@ -26,11 +38,20 @@
 <script>
   upload_form = document.getElementById('upload_form');
   upload_form.addEventListener('submit', (e) => {
-    spinner_progress = document.getElementById('spinner_progress')
+    spinner_progress = document.getElementById('upload_spinner_progress')
     spinner_progress.hidden = false
     upload_button = document.getElementById('uploadButton')
     upload_button.disabled = true
-    upload_button.innerHTML = upload_button.innerHTML.replace('Upload', '')
+    upload_button.innerHTML = upload_button.innerHTML.replace('Upload', 'Uploading')
+  })
+
+  submit_form = document.getElementById('submit_form');
+  submit_form.addEventListener('submit', (e) => {
+    spinner_progress = document.getElementById('submit_spinner_progress')
+    spinner_progress.hidden = false
+    submit_button = document.getElementById('submitButton')
+    submit_button.disabled = true
+    submit_button.innerHTML = submit_button.innerHTML.replace('Process', 'Processing')
     function worker() {
         $.get('get_progress/', function(progress) {
             if (parseInt(progress) < 100) {
@@ -39,7 +60,7 @@
                 progress_bar.innerText = progress.concat('%')
                 task_progress = document.getElementById('task_progress')
                 task_progress.hidden = false
-                setTimeout(worker, 500)
+                setTimeout(worker, 1000)
             } else {
                 progress_bar = document.getElementById('progress_bar')
                 progress_bar.style.width = progress.concat('%')

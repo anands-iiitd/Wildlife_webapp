@@ -50,9 +50,19 @@ def zip_tagged_images():
                 zipf.write(file_path, arcname)
     return zip_filename
 
+@app.route('/try')
+def reset_directories():
+    global n_files
+    # Clear directories
+    clear_directory(app.config['TAGGED_FOLDER'])
+    clear_directory(app.config['UPLOAD_FOLDER'])
+    clear_directory(app.config['DETECT_FOLDER'])
+    n_files = 0
+    return redirect('/catarat')
 
-@app.route('/')
-def index():
+@app.route('/catarat')
+def catarat():
+    global n_files
     # Scan the tagged images folder to get categories
     categories = [f.name for f in os.scandir(TAGGED_FOLDER) if f.is_dir()]
     categorized_images = {}
@@ -65,28 +75,34 @@ def index():
     species_mapping = {k.strip(): species_mapping[k] for k in species_mapping.keys()}
     species_mapping['blan_blan'] = 'Other'
     species_mapping['vehi_vehi'] = 'Vehicle'
-    return render_template('index.html', categories=categories, categorized_images=categorized_images, species_mapping=species_mapping)
+    return render_template('catarat.html', categories=categories, categorized_images=categorized_images, species_mapping=species_mapping, n_files=n_files)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 
-@app.route('/', methods=['POST'])
+@app.route('/upload', methods=['POST'])
 def upload_files():
-    global n_files, progress
+    global n_files
     if 'file' not in request.files:
         flash('No file part')
         return redirect(request.url)
     
     files = request.files.getlist('file')
-    n_files = len(files)
-    # Clear directories
-    clear_directory(app.config['TAGGED_FOLDER'])
-    clear_directory(app.config['UPLOAD_FOLDER'])
-    clear_directory(app.config['DETECT_FOLDER'])
+    n_files = len(os.listdir(app.config['UPLOAD_FOLDER']))
     for i, file in enumerate(files):
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
             print(f"Saved file to {file_path}")
+    return redirect(url_for('catarat'))
+
+
+@app.route('/submit', methods=['POST'])
+def process_files():
+    global n_files
     # Run detect.py for remaining images
     detect_process = subprocess.run(["python", "detect.py"], capture_output=True, text=True)
     print(detect_process.stdout)
@@ -98,12 +114,12 @@ def upload_files():
     print(tag_process.stderr)
     n_files = 0
 
-    return redirect(url_for('index'))
+    return redirect(url_for('catarat'))
 
 
 @app.route('/get_progress/')
 def get_progress():
-    global progress, n_files
+    global n_files
 
     count = 0
     for root_dir, cur_dir, files in os.walk(app.config['DETECT_FOLDER']):

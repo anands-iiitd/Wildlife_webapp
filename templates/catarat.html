@@ -20,8 +20,13 @@
   <!-- Navbar -->
 
   <!-- Upload Files Bar -->
-  {% include 'home.html' %}
+  {% include 'upload_files.html' %}
   <!-- Upload Files Bar -->
+
+  <!-- Gallery -->
+  {% if categorized_images.items()|length > 0 %}
+    {% include 'gallery.html' %}
+  {% endif %}
 
 
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.3.2/mdb.umd.min.js"></script>
