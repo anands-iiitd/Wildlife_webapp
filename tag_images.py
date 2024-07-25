@@ -78,6 +78,7 @@ def change_tags(image_path, image_name, save_tagged_path, keyword, labels, key_w
             else:
                 info.save_as(os.path.join(save_tagged_path, name, image_update_name) + ext, options='overwrite')
 
+
 def unique_labels(list_pred):
     d = {}
     for item in reversed(list_pred):

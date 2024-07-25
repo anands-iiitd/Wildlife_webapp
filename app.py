@@ -82,6 +82,7 @@ def catrat():
 @app.route('/')
 def index():
     copyright_images = pd.read_csv('static/copyright_images.csv', header=None).fillna("")
+    copyright_images = pd.read_csv('static/copyright_images.csv', header=None).fillna("")
     return render_template('index.html', copyright_images=copyright_images)
 
 

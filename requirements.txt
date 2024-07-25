@@ -24,7 +24,7 @@ torchvision #==0.14.1+cu118
 tqdm>=4.64.0
 protobuf<4.21.3
 
-#git+https://github.com/Ananya21162/iptcinfo3.git
+git+https://github.com/Ananya21162/iptcinfo3.git
 #opencv-python
 
 # Logging -------------------------------------
@@ -33,6 +33,6 @@ tensorboard>=2.4.1
 # Plotting ------------------------------------
 pandas>=1.1.4
 seaborn>=0.11.0
-iptcinfo3
+#iptcinfo3
 # Export --------------------------------------
 scikit-learn==1.0.2
