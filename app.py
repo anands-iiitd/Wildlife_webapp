@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 import subprocess
 import pickle
 import numpy as np
+import pandas as pd
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -80,9 +81,8 @@ def catrat():
 
 @app.route('/')
 def index():
-    images = [f for f in os.listdir('static/carousel')]
-    images = {i: os.path.join('static/carousel', image) for i, image in enumerate(images)}
-    return render_template('index.html', images=images)
+    copyright_images = pd.read_csv('static/copyright_images.csv', header=None).fillna("")
+    return render_template('index.html', copyright_images=copyright_images)
 
 
 @app.route('/upload', methods=['POST'])
@@ -91,7 +91,7 @@ def upload_files():
     if 'file' not in request.files:
         flash('No file part')
         return redirect(request.url)
-    
+
     clear_directory(app.config['TAGGED_FOLDER'])
     clear_directory(app.config['DETECT_FOLDER'])
     

@@ -26,7 +26,7 @@
         {% if n_files > 0 %}
           <button class="btn btn-success col-4 offset-4" type="submit" id="submitButton" data-mdb-ripple-init>
         {% else %}
-          <button class="btn btn-success col-4 offset-4" type="submit" data-mdb-ripple-init disabled="true">
+          <button class="btn btn-success col-4 offset-4" type="submit" data-mdb-ripple-init disabled="true" data-mdb-tooltip-init title="Nothing to process" style="pointer-events: auto; cursor: not-allowed">
         {% endif %}
           <span id="submit_spinner_progress" class="spinner-border spinner-border-sm" role="status" hidden="true"></span>
           Process

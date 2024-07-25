@@ -30,7 +30,8 @@
   <div class="row" style="width:95%; margin-left:2.5%">
     {% for category, images in categorized_images.items() %}
       {% for image in images %}
-        <div class="bg-image hover-overlay hover-zoom hover-shadow rippl col-lg-3 col-md-12 mb-3 mb-lg-0 filter-item" style="align-content:center" data-category="{{ category }}">
+        <div class="bg-image hover-overlay hover-zoom hover-shadow rippl col-lg-3 col-md-12 mb-3 mb-lg-0 filter-item"
+             style="align-content:center; height: 250px; overflow: hidden; padding: 5px" data-category="{{ category }}">
           <img
             src="{{ url_for('display_image', filename=category + '/' + image) }}"
             class="w-100 shadow-1-strong rounded mb-4"
@@ -41,6 +42,7 @@
             data-mdb-target="#exampleModal"
             data-mdb-src="{{ url_for('display_image', filename=category + '/' + image) }}"
             data-mdb-category="{{category}}"
+            style="width: 100%; height: 100%; object-fit: cover; object-position: center"
           />
         </div>
       {% endfor %}
